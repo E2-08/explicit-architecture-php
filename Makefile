@@ -128,23 +128,22 @@ shell:
 
 test:
 	- ENV='tst' ./bin/stop # Just in case some container is left over stopped, as is the case after PHPStorm runs tests
-	ENV='tst' ./bin/run
 	- $(MAKE) cs-fix
 	ENV='tst' ./bin/run php vendor/bin/phpunit
-	ENV='tst' ./bin/stop
+	- ENV='tst' ./bin/stop
 	$(MAKE) test-acc
 	$(MAKE) test-dep
 
 test-acc:
 	- ENV='tst' ./bin/stop # Just in case some container is left over stopped, as is the case after PHPStorm runs tests
 	ENV='tst' ./bin/run make db-setup-guest
-	ENV='tst' docker-compose -f build/container/tst/docker-compose.yml up -d -t 0
+	ENV='tst' docker-compose --env-file=build/container/${ENV}/docker.env -f build/container/tst/docker-compose.yml up -d -t 0
 	php vendor/bin/codecept run -g acceptance
-	ENV='tst' ./bin/stop
+	- ENV='tst' ./bin/stop
 
 test-acc-ci:
 	- ENV='prd' ./bin/stop # Just in case some container is left over stopped, as is the case after PHPStorm runs tests
-	ENV='prd' docker-compose -f build/container/prd/docker-compose.yml up -d -t 0
+	ENV='prd' docker-compose --env-file=build/container/${ENV}/docker.env -f build/container/prd/docker-compose.yml up -d -t 0
 	php vendor/bin/codecept run -g acceptance
 	ENV='prd' ./bin/stop
 
